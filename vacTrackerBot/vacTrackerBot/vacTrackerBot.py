@@ -12,7 +12,7 @@ chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
 chrome_options.add_argument("--proxy-server='direct://'")
 chrome_options.add_argument("--proxy-bypass-list=*")
 chrome_options.add_argument("--headless")
-driver = webdriver.Chrome(options=chrome_options, executable_path='./chromeDriver/chromedriver.exe')
+driver = webdriver.Chrome(options=chrome_options)
 import os
 
 client = commands.Bot(command_prefix = '!')
@@ -20,7 +20,6 @@ client = commands.Bot(command_prefix = '!')
 async def on_ready():
     print('The bot is ready to be used.')
 
-client.run('NjU3MzY0MTIwMzkxMTIyOTQ1.XfwIew.TalwSs3MIWWLhskzaRGZuwFEo5A')
 
 def findProfile(profileUrl, textFile):
     isFound = False
@@ -68,11 +67,57 @@ def rewriteNotBanned(dict, textFile):
         #print("the key is:" + key)
         textFile.write(key + " " + val + '\n')
 
+profileDictionary = {}
+createDictionary(profileDictionary, "notBanned.txt")
+
+@client.command()
+async def add(ctx, url):
+    masterList = open("masterList.txt","r")
+    containsMatch = findProfile(url, masterList)
+    if containsMatch is not True:
+        masterList = open("masterList.txt","a")
+        notBannedList = open("notBanned.txt","a")
+        addProfile(url, masterList)
+        addNotBanned(url, notBannedList, profileDictionary)
+        print("The player is now being tracked!")
+        masterList.close()
+        notBannedList.close()
+        await ctx.send('Added a new player to the tracking list!')
+    else:
+          await ctx.send('The player you tried to add is already being tracked.')
+
+@client.command()
+async def scan(ctx):
+    updatedList = False
+    notBannedListRead = open("notBanned.txt","r+")
+    notBannedListWrite = open("notBannedTemp.txt","w+")
+    bannedList = open("banned.txt","a")
+    for line in notBannedListRead:
+        tempKey = line.strip('\n ')
+        (key, val) = line.split()
+        if compareBanVal(key, profileDictionary) is True: #only true if the previous amount of bans doesnt match current
+            await ctx.send("It looks like a there has been banned! Do !r to request the ban file")
+            addProfile(tempKey[0:len(tempKey)-2], bannedList)
+            del profileDictionary[tempKey[0:len(tempKey)-2]]
+            updatedList = True
+    rewriteNotBanned(profileDictionary,notBannedListWrite)
+    if updatedList == False:
+        await ctx.send("Looks like nobody has been banned.")
+    bannedList.close()
+    notBannedListRead.close()
+    notBannedListWrite.close()
+    os.replace("notBannedTemp.txt", "notBanned.txt")
+
+@client.command()
+async def r(ctx):
+    await ctx.send("Here is the text file containing all banned players:")
+    await ctx.send(file=discord.File('banned.txt'))
+
+client.run('NjU3MzY0MTIwMzkxMTIyOTQ1.XfwIew.TalwSs3MIWWLhskzaRGZuwFEo5A')
+
 def main():
-    profileDictionary = {}
-    #notBannedList = open("notBanned.txt","r")
-    createDictionary(profileDictionary, "notBanned.txt")
-    #print (profileDictionary)
+    #profileDictionary = {}
+    #createDictionary(profileDictionary, "notBanned.txt")
     userOption = input("Hello, please choose an input:\na - add new user\ns - scan your tracked players\ne - exit program\n")
     while userOption is not "e":
         if userOption == "a":
@@ -101,14 +146,14 @@ def main():
                 (key, val) = line.split()
                 #print("it is comparing: " + key)
                 if compareBanVal(key, profileDictionary) is True: #only true if the previous amount of bans doesnt match current
-                    print("One or more of your tracked users has been banned. Please check your ban file")
+                    print("One or more tracked users has been banned. Please check the ban file")
                     addProfile(tempKey[0:len(tempKey)-2], bannedList)
                     del profileDictionary[tempKey[0:len(tempKey)-2]]
                     #print(profileDictionary)
                     updatedList = True
             rewriteNotBanned(profileDictionary,notBannedListWrite)
             if updatedList == False:
-                print("Looks like nobody you are tracking has been banned.")
+                print("Looks like nobody that is being tracked has been banned.")
             bannedList.close()
             notBannedListRead.close()
             notBannedListWrite.close()
