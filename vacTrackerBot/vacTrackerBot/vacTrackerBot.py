@@ -3,15 +3,16 @@ import discord
 from discord.ext import commands
 import os
 
-
+#os.chdir('D:\\VacTracker Repo\\VacTracker\\vacTrackerBot\\vacTrackerBot')
 def getDiscordKey():
-     keyFile = open("keys.txt","r")
+     keyFile = open('keys.txt',"r")
      lines = keyFile.readlines()
      discordKey = lines[0].strip('\n')
      keyFile.close()
      return discordKey
+
 def getSteamAPIKey():
-     keyFile = open("keys.txt","r")
+     keyFile = open('keys.txt',"r")
      lines = keyFile.readlines()
      steamAPIKey = lines[1].strip('\n')
      keyFile.close()
@@ -23,7 +24,6 @@ client = commands.Bot(command_prefix = '!')
 @client.event
 async def on_ready():
     print('The bot is ready to be used.')
-    getSteamID('https://steamcommunity.com/id/unboundchaos/')
 
 
 def findProfile(profileID, textFile):
@@ -35,7 +35,7 @@ def findProfile(profileID, textFile):
     return isFound
 
 def compareBanVal(profileID,profileDictionary):
-    jsonURL = 'http://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key=8FFF2A64C0C2BFADC1E45F3C4F92805E&steamids=' + profileID
+    jsonURL = 'http://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key='+steamAPIKey+'steamids=' + profileID
     banCount = str(getBanCount(jsonURL))
     if str(profileDictionary.get(profileID)) == banCount:
         print("banCount: " + banCount + " matches the dictionary val: " + profileDictionary.get(profileID))
