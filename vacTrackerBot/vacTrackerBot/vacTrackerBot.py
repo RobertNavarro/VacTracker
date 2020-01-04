@@ -5,7 +5,7 @@ import os
 
 
 def getDiscordKey():
-     keyFile = open("keys.gitignore","r")
+     keyFile = open("keys.txt","r")
      lines = keyFile.readlines()
      discordKey = lines[0].strip('\n')
      keyFile.close()
