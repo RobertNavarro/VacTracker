@@ -10,14 +10,14 @@ def getDiscordKey():
      discordKey = lines[0].strip('\n')
      keyFile.close()
      return discordKey
-def getsteamAPIKey():
-     keyFile = open("keys.gitignore","r")
+def getSteamAPIKey():
+     keyFile = open("keys.txt","r")
      lines = keyFile.readlines()
      steamAPIKey = lines[1].strip('\n')
      keyFile.close()
      return steamAPIKey
 discordKey = getDiscordKey()
-steamAPIKey = getsteamAPIKey()
+steamAPIKey = getSteamAPIKey()
 
 client = commands.Bot(command_prefix = '!')
 @client.event
