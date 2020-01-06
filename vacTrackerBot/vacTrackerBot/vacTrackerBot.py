@@ -35,7 +35,8 @@ def findProfile(profileID, textFile):
     return isFound
 
 def compareBanVal(profileID,profileDictionary):
-    jsonURL = 'http://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key='+steamAPIKey+'steamids=' + profileID
+    #print("Running compareBanVal")
+    jsonURL = 'http://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key='+steamAPIKey+'&steamids=' + profileID
     banCount = str(getBanCount(jsonURL))
     if str(profileDictionary.get(profileID)) == banCount:
         print("banCount: " + banCount + " matches the dictionary val: " + profileDictionary.get(profileID))
@@ -93,6 +94,7 @@ async def add(ctx, url):
 
 @client.command()
 async def scan(ctx):
+    print('Running a scan')
     updatedList = False
     notBannedListRead = open("notBanned.txt","r+")
     notBannedListWrite = open("notBannedTemp.txt","w+")
@@ -100,6 +102,7 @@ async def scan(ctx):
     for line in notBannedListRead:
         tempKey = line.strip('\n ')
         (key, val) = line.split()
+        #print('In the scan for loop')
         #print("the val is " + val)
         #print("the dict value is " + profileDictionary.get(key))
         if compareBanVal(key, profileDictionary) is True: #only true if the previous amount of bans doesnt match current
@@ -110,6 +113,7 @@ async def scan(ctx):
             updatedList = True
     rewriteNotBanned(profileDictionary,notBannedListWrite)
     if updatedList == False:
+        #print('The updatedList is false')
         await ctx.send("Looks like nobody has been banned.")
     bannedList.close()
     notBannedListRead.close()
